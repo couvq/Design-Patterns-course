@@ -1,6 +1,7 @@
 package SOLID_Principles.Open_Closed_Principle;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 enum Color {
@@ -11,16 +12,23 @@ enum Size {
     SMALL, MEDIUM, LARGE, YUGE
 }
 
+enum Price {
+    LOW, MEDIUM, HIGH
+}
+
 
 public class Product {
     public String name;
     public Color color;
     public Size size;
 
-    public Product(String name, Color color, Size size) {
+    public Price price;
+
+    public Product(String name, Color color, Size size, Price price) {
         this.name = name;
         this.color = color;
         this.size = size;
+        this.price = price;
     }
 }
 
@@ -92,6 +100,19 @@ class SizeSpecification implements Specification<Product> {
     }
 }
 
+class PriceSpecification implements Specification<Product> {
+    private Price price;
+
+    public PriceSpecification(Price price) {
+        this.price = price;
+    }
+
+    @Override
+    public boolean isSatisfied(Product p) {
+        return p.price == price;
+    }
+}
+
 class AndSpecification<T> implements Specification<T> {
     private Specification<T> first, second;
 
@@ -106,11 +127,31 @@ class AndSpecification<T> implements Specification<T> {
     }
 }
 
+class ComboSpecification<T> implements Specification<T> {
+    private List<Specification<T>> specifications;
+
+    ComboSpecification(List<Specification<T>> specifications) {
+        this.specifications = specifications;
+    }
+
+    @Override
+    public boolean isSatisfied(T item) {
+        AtomicBoolean isSatisfied = new AtomicBoolean(true);
+        specifications.forEach(spec -> {
+            if(!spec.isSatisfied(item)) {
+                isSatisfied.set(false);
+            }
+        });
+
+        return isSatisfied.get();
+    }
+}
+
 class OCPDemo {
     public static void main(String[] args) {
-        Product apple = new Product("Apple", Color.GREEN, Size.SMALL);
-        Product tree = new Product("Tree", Color.GREEN, Size.LARGE);
-        Product house = new Product("House", Color.BLUE, Size.LARGE);
+        Product apple = new Product("Apple", Color.GREEN, Size.SMALL, Price.LOW);
+        Product tree = new Product("Tree", Color.GREEN, Size.LARGE, Price.MEDIUM);
+        Product house = new Product("House", Color.BLUE, Size.LARGE, Price.HIGH);
 
         List<Product> products = List.of(apple, tree, house);
 
@@ -129,5 +170,15 @@ class OCPDemo {
                 new ColorSpecification(Color.BLUE),
                 new SizeSpecification(Size.LARGE)))
                 .forEach(product -> System.out.println(" - " + product.name + " is blue and large"));
+
+        System.out.println("Large blue and high price items");
+        bf.filter(products, new ComboSpecification<>(
+                List.of(
+                       new SizeSpecification(Size.LARGE),
+                       new ColorSpecification(Color.BLUE),
+                        new PriceSpecification(Price.HIGH)
+                )
+        ))
+                .forEach(product -> System.out.println(" - " + product.name + " is blue and large and high price"));
     }
 }
