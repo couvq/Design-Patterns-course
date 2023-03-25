@@ -1,11 +1,11 @@
+package SOLID_Principles.Single_Responsibility_Principle;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.io.FileDescriptor.out;
 
 /**
  * A Class to demo the Single Responsibility Principle (SRP),
@@ -30,7 +30,7 @@ public class Journal {
 
     // everything below violates single responsibility principle, as now the journal class has to handle
     // keeping track of journal entries as well as i/o filehandling/persistence for journal entries.
-    // Let's make a new class called Persistence to handle this for us, so we do not violate the SRP
+    // Let's make a new class called SOLID_Principles.Single_Responsibility_Principle.Persistence to handle this for us, so we do not violate the SRP
     public void save(String filename) throws FileNotFoundException {
         try (PrintStream out = new PrintStream(filename)) {
             out.println(toString());
@@ -51,7 +51,7 @@ class Persistence {
     }
 }
 
-class Demo {
+class SRPDemo {
     public static void main(String[] args) throws Exception {
         Journal j = new Journal();
         j.addEntry("I cried today");
@@ -67,9 +67,9 @@ class Demo {
 
 /**
  * Follow up/summary of lesson
- * 1. We introduced a violation of the single responsibility principle when we made the Journal class handle to many concerns,
+ * 1. We introduced a violation of the single responsibility principle when we made the SOLID_Principles.Single_Responsibility_Principle.Journal class handle to many concerns,
  *    introducing the functionality of saving journals
- * 2. We separated these two concerns by making the Journal class responsible for storing and manipulating journal entries,
- *    and the Persistence class responsible for Saving and loading of journals from storage. By doing this both classes
+ * 2. We separated these two concerns by making the SOLID_Principles.Single_Responsibility_Principle.Journal class responsible for storing and manipulating journal entries,
+ *    and the SOLID_Principles.Single_Responsibility_Principle.Persistence class responsible for Saving and loading of journals from storage. By doing this both classes
  *    now have a single responsibility.
  */
